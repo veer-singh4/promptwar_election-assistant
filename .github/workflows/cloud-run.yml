@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  PROJECT_ID: gen-ai-academy-491610
+  PROJECT_ID: testnoti-63091
   REGION: us-central1
   SERVICE: election-assistant
 
