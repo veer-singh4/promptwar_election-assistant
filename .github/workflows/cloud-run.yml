@@ -31,6 +31,8 @@ jobs:
         service: ${{ env.SERVICE }}
         region: ${{ env.REGION }}
         source: .
+        env_vars: |
+          VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }}
 
     - name: Show Output
       run: echo ${{ steps.deploy.outputs.url }}
