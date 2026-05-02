@@ -34,7 +34,7 @@ export default function SmartAssistant() {
 
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ 
-        model: "gemini-pro-latest",
+        model: "gemini-2.5-flash",
         systemInstruction: "You are the 'Bharat Election Smart Assistant'. Your goal is to provide accurate, helpful, and non-partisan information about the Indian democratic process, including Lok Sabha, Rajya Sabha, EVMs, VVPATs, polling phases, and voter rights. Always be respectful and encourage democratic participation. If asked about a specific constituency that you don't have real-time data for, advise visiting the ECI website."
       });
 
