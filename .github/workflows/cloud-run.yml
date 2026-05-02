@@ -24,18 +24,15 @@ jobs:
       with:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
-    - name: Create .env file
-      run: echo "VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }}" > .env
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
 
     - name: Deploy to Cloud Run
-      id: deploy
-      uses: google-github-actions/deploy-cloudrun@v2
-      with:
-        service: ${{ env.SERVICE }}
-        region: ${{ env.REGION }}
-        source: .
-        env_vars: |
-          VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }}
-
-    - name: Show Output
-      run: echo ${{ steps.deploy.outputs.url }}
+      run: |-
+        gcloud run deploy ${{ env.SERVICE }} \
+          --source . \
+          --region ${{ env.REGION }} \
+          --platform managed \
+          --allow-unauthenticated \
+          --set-env-vars VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }} \
+          --set-build-env-vars VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }}
