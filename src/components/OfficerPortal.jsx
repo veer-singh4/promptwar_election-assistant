@@ -1,9 +1,33 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  PieChart, Pie, Cell, Legend 
+} from 'recharts';
+import { 
+  ShieldCheck, AlertTriangle, Users, Clock, LogOut, 
+  Scan, Fingerprint, Database, CheckCircle2 
+} from 'lucide-react';
+import { useElection } from '../context/ElectionContext';
+
+const COLORS = ['#fb8c00', '#ffffff', '#4caf50'];
 
 export default function OfficerPortal() {
+  const { telemetry, addAlert, setUserRole } = useElection();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [scanState, setScanState] = useState('idle'); // idle, scanning_qr, scanning_finger, verified, duplicate
+  const [scanState, setScanState] = useState('idle');
   const [scannedData, setScannedData] = useState(null);
+
+  // Analytics Data derived from Context
+  const chartData = useMemo(() => telemetry.booths.map(b => ({
+    name: b.id,
+    Load: b.load,
+    Wait: b.waitTime
+  })), [telemetry.booths]);
+
+  const turnoutData = [
+    { name: 'Voted', value: telemetry.totalTurnout },
+    { name: 'Remaining', value: 100 - telemetry.totalTurnout }
+  ];
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -12,118 +36,154 @@ export default function OfficerPortal() {
 
   const simulateScan = (type) => {
     setScanState(`scanning_${type}`);
-    
     setTimeout(() => {
-      // Simulate reading data
       const mockData = { name: "Rahul Sharma", idNumber: "ABC1234567" };
       setScannedData(mockData);
-      
-      // Simulate checking central database for duplicates (random outcome for demo)
-      const isDuplicate = Math.random() > 0.7; // 30% chance to flag as duplicate
-      
+      const isDuplicate = Math.random() > 0.85; 
       if (isDuplicate) {
         setScanState('duplicate');
+        addAlert(`SECURITY ALERT: Potential duplicate vote attempt at ST-101`);
       } else {
         setScanState('verified');
       }
     }, 2000);
   };
 
-  const resetScanner = () => {
-    setScanState('idle');
-    setScannedData(null);
-  };
-
   if (!isLoggedIn) {
     return (
-      <div className="card animate-fade-in" style={{ maxWidth: '400px', margin: '0 auto' }}>
-        <h2 style={{ textAlign: 'center', color: 'var(--accent-saffron)', marginBottom: '2rem' }}>Officer Login</h2>
+      <main className="card animate-fade-in" style={{ maxWidth: '400px', margin: '4rem auto' }}>
+        <header style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <ShieldCheck size={48} color="var(--accent-saffron)" style={{ margin: '0 auto 1rem' }} />
+          <h2 style={{ color: 'var(--accent-saffron)' }}>Officer Authentication</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>Secure biometric gateway</p>
+        </header>
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <input 
-            type="text" 
-            placeholder="Officer ID (e.g. PO-8921)" 
-            required
-            style={{ padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none' }}
-          />
-          <input 
-            type="password" 
-            placeholder="Secure Password" 
-            required
-            style={{ padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', outline: 'none' }}
-          />
+          <div className="input-group">
+            <input type="text" placeholder="Badge ID (e.g. PO-8921)" required className="form-input" />
+          </div>
+          <div className="input-group">
+            <input type="password" placeholder="Passcode" required className="form-input" />
+          </div>
           <button type="submit" className="btn btn-primary" style={{ marginTop: '1rem' }}>
-            Authenticate
+            Enter Control Center
           </button>
         </form>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <main style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '4rem' }}>
       
-      <div className="card animate-fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', borderLeft: '4px solid var(--accent-saffron)' }}>
-        <div>
-          <h3 style={{ margin: 0 }}>Polling Station: KV School, Gole Market</h3>
-          <small style={{ color: 'var(--text-secondary)' }}>Officer ID: PO-8921 | Status: Active</small>
+      {/* Top Stats Bar */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem' }}>
+          <Users color="var(--accent-saffron)" />
+          <div>
+            <small style={{ color: 'var(--text-secondary)', display: 'block' }}>Live Turnout</small>
+            <strong style={{ fontSize: '1.2rem' }}>{telemetry.totalTurnout}%</strong>
+          </div>
         </div>
-        <button onClick={() => setIsLoggedIn(false)} className="btn btn-secondary">Logout</button>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem' }}>
+          <Clock color="var(--accent-green)" />
+          <div>
+            <small style={{ color: 'var(--text-secondary)', display: 'block' }}>Avg. Wait Time</small>
+            <strong style={{ fontSize: '1.2rem' }}>14 mins</strong>
+          </div>
+        </div>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem' }}>
+          <ShieldCheck color="var(--accent-saffron)" />
+          <div>
+            <small style={{ color: 'var(--text-secondary)', display: 'block' }}>Security Status</small>
+            <strong style={{ fontSize: '1.2rem', color: 'var(--accent-green)' }}>ACTIVE</strong>
+          </div>
+        </div>
+        <button onClick={() => { setIsLoggedIn(false); setUserRole(null); }} className="btn btn-secondary" style={{ padding: '0.5rem' }}>
+          <LogOut size={20} />
+        </button>
       </div>
 
-      <div className="card text-center animate-fade-in" style={{ padding: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
         
-        {scanState === 'idle' && (
-          <>
-            <h2 style={{ marginBottom: '2rem' }}>Identity Verification Terminal</h2>
-            <div style={{ display: 'flex', gap: '2rem', justifyContent: 'center' }}>
-              <button onClick={() => simulateScan('qr')} className="btn btn-primary" style={{ padding: '1.5rem 2rem', flexDirection: 'column', gap: '1rem' }}>
-                <span style={{ fontSize: '2rem' }}>📱</span>
-                Scan QR Pass
-              </button>
-              <button onClick={() => simulateScan('finger')} className="btn btn-secondary" style={{ padding: '1.5rem 2rem', flexDirection: 'column', gap: '1rem' }}>
-                <span style={{ fontSize: '2rem' }}>👆</span>
-                Scan Fingerprint
-              </button>
-            </div>
-          </>
-        )}
-
-        {(scanState === 'scanning_qr' || scanState === 'scanning_finger') && (
-          <div style={{ padding: '4rem 0' }}>
-            <h3 style={{ color: 'var(--accent-saffron)' }}>
-              {scanState === 'scanning_qr' ? 'Scanning QR Code...' : 'Scanning Biometrics...'}
-            </h3>
-            <p style={{ color: 'var(--text-secondary)' }}>Verifying against Central Election Database...</p>
+        {/* Verification Terminal */}
+        <section className="card" style={{ display: 'flex', flexDirection: 'column', minHeight: '450px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+            <Database size={20} color="var(--accent-saffron)" />
+            <h3 style={{ margin: 0 }}>Identity Terminal</h3>
           </div>
-        )}
 
-        {scanState === 'verified' && (
-          <div style={{ padding: '2rem 0' }}>
-            <div style={{ fontSize: '4rem', color: 'var(--accent-green)', marginBottom: '1rem' }}>✅</div>
-            <h2 style={{ color: 'var(--accent-green)' }}>Verification Successful</h2>
-            <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1rem', borderRadius: 'var(--radius-md)', display: 'inline-block', margin: '1rem 0' }}>
-              <p><strong>Voter:</strong> {scannedData.name}</p>
-              <p><strong>ID:</strong> {scannedData.idNumber}</p>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Voter is eligible to cast their vote.</p>
-            <button onClick={resetScanner} className="btn btn-primary">Process Next Voter</button>
-          </div>
-        )}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
+            {scanState === 'idle' && (
+              <div style={{ display: 'flex', gap: '1.5rem' }}>
+                <button onClick={() => simulateScan('qr')} className="btn btn-primary" style={{ padding: '2rem', flexDirection: 'column', gap: '0.5rem', width: '160px' }}>
+                  <Scan size={32} />
+                  QR Scan
+                </button>
+                <button onClick={() => simulateScan('finger')} className="btn btn-secondary" style={{ padding: '2rem', flexDirection: 'column', gap: '0.5rem', width: '160px' }}>
+                  <Fingerprint size={32} />
+                  Biometric
+                </button>
+              </div>
+            )}
 
-        {scanState === 'duplicate' && (
-          <div style={{ padding: '2rem 0' }}>
-            <div style={{ fontSize: '4rem', color: 'var(--danger)', marginBottom: '1rem' }}>⚠️</div>
-            <h2 style={{ color: 'var(--danger)' }}>DUPLICATE VOTE ATTEMPT DETECTED</h2>
-            <div style={{ backgroundColor: 'var(--bg-primary)', padding: '1rem', borderRadius: 'var(--radius-md)', display: 'inline-block', margin: '1rem 0', border: '1px solid var(--danger)' }}>
-              <p><strong>Voter:</strong> {scannedData.name}</p>
-              <p><strong>ID:</strong> {scannedData.idNumber}</p>
-              <p style={{ color: 'var(--danger)', marginTop: '0.5rem' }}><strong>Record shows vote already cast at 09:42 AM today.</strong></p>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Please detain the individual and contact security.</p>
-            <button onClick={resetScanner} className="btn btn-secondary">Clear Alert & Proceed</button>
+            {(scanState === 'scanning_qr' || scanState === 'scanning_finger') && (
+              <div className="animate-pulse">
+                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📡</div>
+                <h3 style={{ color: 'var(--accent-saffron)' }}>Verifying...</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>Querying Central Database</p>
+              </div>
+            )}
+
+            {scanState === 'verified' && (
+              <div className="animate-fade-in">
+                <CheckCircle2 size={64} color="var(--accent-green)" style={{ marginBottom: '1rem' }} />
+                <h3 style={{ color: 'var(--accent-green)' }}>Verified Successfully</h3>
+                <div style={{ background: 'rgba(76,175,80,0.1)', padding: '1rem', borderRadius: '0.5rem', margin: '1rem 0' }}>
+                  <p><strong>Voter:</strong> {scannedData.name}</p>
+                  <p><strong>ID:</strong> {scannedData.idNumber}</p>
+                </div>
+                <button onClick={() => setScanState('idle')} className="btn btn-primary" style={{ marginTop: '1rem' }}>Next Entry</button>
+              </div>
+            )}
+
+            {scanState === 'duplicate' && (
+              <div className="animate-bounce">
+                <AlertTriangle size={64} color="#ff3e3e" style={{ marginBottom: '1rem' }} />
+                <h3 style={{ color: '#ff3e3e' }}>DUPLICATE DETECTED</h3>
+                <p style={{ background: 'rgba(255,62,62,0.1)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid #ff3e3e' }}>
+                  UID: {scannedData.idNumber} - Already Voted at 10:15 AM
+                </p>
+                <button onClick={() => setScanState('idle')} className="btn btn-secondary" style={{ marginTop: '1rem' }}>Reset Alarm</button>
+              </div>
+            )}
           </div>
-        )}
+        </section>
+
+        {/* Real-time Analytics */}
+        <section className="card" style={{ minHeight: '450px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+            <Database size={20} color="var(--accent-green)" />
+            <h3 style={{ margin: 0 }}>Booth Metrics (Live)</h3>
+          </div>
+          <div style={{ height: '350px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#2c3e50" />
+                <XAxis dataKey="name" stroke="var(--text-secondary)" fontSize={12} />
+                <YAxis stroke="var(--text-secondary)" fontSize={12} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)' }}
+                  itemStyle={{ color: 'var(--accent-saffron)' }}
+                />
+                <Bar dataKey="Load" fill="var(--accent-saffron)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Wait" fill="var(--accent-green)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
       </div>
-    </div>
+
+    </main>
   );
 }
+

@@ -157,6 +157,45 @@ button {
   border: 1px solid var(--accent-saffron);
 }
 
+.btn-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: var(--transition);
+  font-size: 0.9rem;
+}
+
+.btn-nav:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-nav.active {
+  color: var(--accent-saffron);
+  background-color: rgba(255, 153, 51, 0.1);
+}
+
+/* Form Elements */
+.form-input {
+  width: 100%;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  border-color: var(--accent-saffron);
+  box-shadow: 0 0 0 2px rgba(255, 153, 51, 0.2);
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -165,6 +204,22 @@ button {
 
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+  50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+}
+.animate-bounce {
+  animation: bounce 1s infinite;
 }
 
 @media (max-width: 768px) {
@@ -179,4 +234,5 @@ button {
   .card {
     padding: 1.5rem;
   }
+  .btn-nav span { display: none; }
 }
