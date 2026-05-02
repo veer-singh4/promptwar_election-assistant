@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default function SmartAssistant() {
   const [messages, setMessages] = useState([
@@ -25,29 +25,27 @@ export default function SmartAssistant() {
     setInput('');
     setIsLoading(true);
 
-    // Simulate Google Gemini API call
     try {
-      setTimeout(() => {
-        let response = "";
-        const lowerInput = input.toLowerCase();
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("Gemini API Key is missing. Please check your environment variables.");
+      }
 
-        if (lowerInput.includes("rajya sabha") || lowerInput.includes("lok sabha")) {
-          response = "The Lok Sabha (House of the People) members are directly elected by the public. The Rajya Sabha (Council of States) members are elected by the elected members of State Legislative Assemblies. The Prime Minister is generally the leader of the majority party in the Lok Sabha.";
-        } else if (lowerInput.includes("phase") || lowerInput.includes("schedule")) {
-          response = "Indian general elections are usually held in multiple phases (often 7 phases) due to the massive scale of operations, allowing security forces to be moved across states. For instance, UP and Bihar usually vote across all 7 phases.";
-        } else if (lowerInput.includes("evm") || lowerInput.includes("vvpat")) {
-          response = "EVM stands for Electronic Voting Machine. VVPAT stands for Voter Verifiable Paper Audit Trail, which prints a slip so you can verify your vote went to the right candidate.";
-        } else {
-          response = "That's a great question! For specific constituency details, you can visit the Election Commission of India (ECI) website or use the Voter Helpline App.";
-        }
-        
-        setMessages(prev => [...prev, { role: 'assistant', content: response }]);
-        setIsLoading(false);
-      }, 1500);
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        systemInstruction: "You are the 'Bharat Election Smart Assistant'. Your goal is to provide accurate, helpful, and non-partisan information about the Indian democratic process, including Lok Sabha, Rajya Sabha, EVMs, VVPATs, polling phases, and voter rights. Always be respectful and encourage democratic participation. If asked about a specific constituency that you don't have real-time data for, advise visiting the ECI website."
+      });
+
+      const result = await model.generateContent(input);
+      const responseText = result.response.text();
+      
+      setMessages(prev => [...prev, { role: 'assistant', content: responseText }]);
+      setIsLoading(false);
       
     } catch (error) {
-      console.error("Error communicating with Gemini", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered a network error. Please try again.' }]);
+      console.error("Error communicating with Gemini:", error);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Namaste! I encountered an issue connecting to the AI service. Please ensure the API key is configured correctly in GitHub Secrets or .env.' }]);
       setIsLoading(false);
     }
   };

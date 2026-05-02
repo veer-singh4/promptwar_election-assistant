@@ -15,15 +15,47 @@ Our approach was to build an end-to-end election platform. The logic is split in
 2. **Polling Officer Portal**: Security is paramount. We built a mock officer dashboard where officials can scan the Voter's QR pass or fingerprint. The logic cross-references a simulated central database to prevent duplicate voting ("One Person, One Vote").
 
 ## ⚙️ How the Solution Works
-- The application is a Single Page Application (SPA) built using **React** and **Vite**.
-- **Performance & Size**: To maintain a repository size under 10 MB, we avoided bloated CSS frameworks. We used highly optimized libraries: `qrcode.react` for pass generation and `leaflet` for mapping.
-- **Google Services Integration**: The application architecture is designed to integrate **Google Maps API** (currently using open-source fallback to ensure functionality without keys) and **Google Gemini/Vision API** for smart chat assistance and ID OCR extraction.
-- **Aesthetic**: The application features a premium dark mode with a patriotic Saffron, White, and Green color scheme.
+- **Architecture**: Single Page Application (SPA) built using **React** and **Vite**.
+- **Performance & Size**: To maintain a repository size under 10 MB, we used optimized libraries like `qrcode.react` and `leaflet`.
+- **Google Services Integration**: The application integrates **Google Gemini 1.5 Flash** for smart chat assistance.
+- **Aesthetic**: A premium dark mode featuring a patriotic Saffron, White, and Green theme.
+
+---
+
+## 🛠️ Deployment & Environment
+This app is deployed on **Google Cloud Run** using a GitHub Actions CI/CD pipeline.
+
+### Environment Variables
+- `VITE_GEMINI_API_KEY`: Required for the AI Smart Assistant (Gemini 1.5 Flash).
+
+---
+
+## ✅ Verification & Testing Guide
+Follow these steps to test the "Two-Face" architecture:
+
+### 1. Voter / Candidate Portal
+*   **Navigate:** Click "Voter / Candidate" card.
+*   **ID Verification:** Upload any image file (simulated OCR).
+*   **Result:** System generates a **Digital QR Entry Pass** and loads an interactive **Leaflet Map** with your booth location.
+*   **AI Assistant:** Use the "Assistant" tab to ask questions (e.g., *"What is VVPAT?"*).
+
+### 2. Polling Officer Portal
+*   **Navigate:** Click "Polling Officer" card.
+*   **Login:** Click "Authenticate".
+*   **Verification:** Click "Scan QR Pass".
+*   **Result:** "Verification Successful" message confirms the secure entry protocol.
+
+---
+
+## 🏗️ Technical Stack
+- **Frontend:** React + Vite
+- **AI:** Google Gemini 1.5 Flash
+- **Maps:** Leaflet.js (OpenStreetMap)
+- **Deployment:** Docker + Google Cloud Run
 
 ## 📝 Assumptions Made
-- The primary target audience is Indian voters (focusing on Lok Sabha and State Assembly elections).
-- The Polling Officer backend relies on the assumption that a secure, centralized database exists to check for duplicates in real-time.
-- For demonstration purposes, the OCR extraction and Database duplication checks are simulated locally.
+- The OCR extraction and Database duplication checks are simulated for demo purposes.
+- The AI Assistant requires a valid `VITE_GEMINI_API_KEY` passed through the environment.
 
 ## 🚀 Running Locally
 1. Clone the repository.
