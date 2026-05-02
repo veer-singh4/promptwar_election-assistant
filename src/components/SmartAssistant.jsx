@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default function SmartAssistant() {
   const [messages, setMessages] = useState([
@@ -27,26 +26,27 @@ export default function SmartAssistant() {
     setIsLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        throw new Error("Gemini API Key is missing. Please check your environment variables.");
-      }
-
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash-latest",
-        systemInstruction: "You are the 'Bharat Election Smart Assistant'. Your goal is to provide accurate, helpful, and non-partisan information about the Indian democratic process, including Lok Sabha, Rajya Sabha, EVMs, VVPATs, polling phases, and voter rights. Always be respectful and encourage democratic participation. If asked about a specific constituency that you don't have real-time data for, advise visiting the ECI website."
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: input }),
       });
 
-      const result = await model.generateContent(input);
-      const responseText = result.response.text();
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.details || 'Server error');
+      }
+
+      const data = await response.json();
       
-      setMessages(prev => [...prev, { role: 'assistant', content: responseText }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: data.text }]);
       setIsLoading(false);
       
     } catch (error) {
-      console.error("Error communicating with Gemini:", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Namaste! I encountered an issue connecting to the AI service. Please ensure the API key is configured correctly in GitHub Secrets or .env.' }]);
+      console.error("Error communicating with AI service:", error);
+      setMessages(prev => [...prev, { role: 'assistant', content: `Namaste! I encountered an issue: ${error.message}. Please try again shortly.` }]);
       setIsLoading(false);
     }
   };
