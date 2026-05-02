@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default function SmartAssistant() {
   const [messages, setMessages] = useState([
@@ -26,27 +27,26 @@ export default function SmartAssistant() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: input }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || 'Server error');
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("Gemini API Key is missing. Please check your environment variables.");
       }
 
-      const data = await response.json();
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-pro-latest",
+        systemInstruction: "You are the 'Bharat Election Smart Assistant'. Your goal is to provide accurate, helpful, and non-partisan information about the Indian democratic process, including Lok Sabha, Rajya Sabha, EVMs, VVPATs, polling phases, and voter rights. Always be respectful and encourage democratic participation. If asked about a specific constituency that you don't have real-time data for, advise visiting the ECI website."
+      });
+
+      const result = await model.generateContent(input);
+      const responseText = result.response.text();
       
-      setMessages(prev => [...prev, { role: 'assistant', content: data.text }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: responseText }]);
       setIsLoading(false);
       
     } catch (error) {
-      console.error("Error communicating with AI service:", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: `Namaste! I encountered an issue: ${error.message}. Please try again shortly.` }]);
+      console.error("Error communicating with Gemini:", error);
+      setMessages(prev => [...prev, { role: 'assistant', content: `Namaste! I encountered an issue: ${error.message}. Please check the API key or model availability.` }]);
       setIsLoading(false);
     }
   };
