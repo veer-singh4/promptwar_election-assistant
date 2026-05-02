@@ -43,7 +43,7 @@ jobs:
       run: |-
         gcloud run deploy ${{ env.SERVICE }} \
           --image us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}:${{ github.sha }} \
-          region ${{ env.REGION }} \
+          --region ${{ env.REGION }} \
           --platform managed \
           --allow-unauthenticated \
           --set-env-vars "VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }},VITE_GOOGLE_MAPS_API_KEY=${{ secrets.VITE_GOOGLE_MAPS_API_KEY }}"
