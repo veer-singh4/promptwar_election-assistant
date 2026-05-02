@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function SmartAssistant() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hi! I am your Election IQ Smart Assistant, powered by Google Gemini. Ask me anything about the election process, polling locations, or candidate research!' }
+    { role: 'assistant', content: 'Namaste! I am your Bharat Election Smart Assistant, powered by Google Gemini. Ask me about the Lok Sabha, Rajya Sabha, EVMs, or polling phases!' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -27,25 +27,27 @@ export default function SmartAssistant() {
 
     // Simulate Google Gemini API call
     try {
-      // In a real application, we would call the Gemini API here.
-      // Example: fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + import.meta.env.VITE_GEMINI_API_KEY, ...)
-      
       setTimeout(() => {
-        const responses = [
-          "That's a great question! Voter registration deadlines vary by state. You can usually check your local Secretary of State website for exact dates.",
-          "The Electoral College is how we elect the President. Each state has a certain number of electoral votes based on its Congressional representation.",
-          "To find your polling place, you can use the Google Civic Information API or check your state's election website.",
-          "You can research candidates by looking at non-partisan websites like Vote411.org or Ballotpedia."
-        ];
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        let response = "";
+        const lowerInput = input.toLowerCase();
+
+        if (lowerInput.includes("rajya sabha") || lowerInput.includes("lok sabha")) {
+          response = "The Lok Sabha (House of the People) members are directly elected by the public. The Rajya Sabha (Council of States) members are elected by the elected members of State Legislative Assemblies. The Prime Minister is generally the leader of the majority party in the Lok Sabha.";
+        } else if (lowerInput.includes("phase") || lowerInput.includes("schedule")) {
+          response = "Indian general elections are usually held in multiple phases (often 7 phases) due to the massive scale of operations, allowing security forces to be moved across states. For instance, UP and Bihar usually vote across all 7 phases.";
+        } else if (lowerInput.includes("evm") || lowerInput.includes("vvpat")) {
+          response = "EVM stands for Electronic Voting Machine. VVPAT stands for Voter Verifiable Paper Audit Trail, which prints a slip so you can verify your vote went to the right candidate.";
+        } else {
+          response = "That's a great question! For specific constituency details, you can visit the Election Commission of India (ECI) website or use the Voter Helpline App.";
+        }
         
-        setMessages(prev => [...prev, { role: 'assistant', content: randomResponse }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: response }]);
         setIsLoading(false);
       }, 1500);
       
     } catch (error) {
       console.error("Error communicating with Gemini", error);
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered a network error. Please try again.' }]);
       setIsLoading(false);
     }
   };
@@ -55,8 +57,8 @@ export default function SmartAssistant() {
       <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <div style={{ fontSize: '2rem' }}>🤖</div>
         <div>
-          <h2 style={{ margin: 0 }}>Smart Assistant</h2>
-          <small style={{ color: 'var(--success)' }}>Powered by Google Gemini</small>
+          <h2 style={{ margin: 0, color: 'var(--accent-saffron)' }}>Gemini Assistant</h2>
+          <small style={{ color: 'var(--accent-green)' }}>Powered by Google Gemini</small>
         </div>
       </div>
       
@@ -66,12 +68,13 @@ export default function SmartAssistant() {
             key={idx} 
             style={{ 
               alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              backgroundColor: msg.role === 'user' ? 'var(--accent-primary)' : 'var(--bg-tertiary)',
-              color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
+              backgroundColor: msg.role === 'user' ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
+              color: 'var(--text-primary)',
               padding: '1rem',
               borderRadius: 'var(--radius-md)',
               borderBottomRightRadius: msg.role === 'user' ? '0' : 'var(--radius-md)',
               borderBottomLeftRadius: msg.role === 'assistant' ? '0' : 'var(--radius-md)',
+              border: `1px solid ${msg.role === 'user' ? 'var(--accent-green)' : 'var(--border-color)'}`,
               maxWidth: '80%',
               lineHeight: '1.5'
             }}
@@ -80,7 +83,7 @@ export default function SmartAssistant() {
           </div>
         ))}
         {isLoading && (
-          <div style={{ alignSelf: 'flex-start', backgroundColor: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-md)', borderBottomLeftRadius: '0' }}>
+          <div style={{ alignSelf: 'flex-start', backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: 'var(--radius-md)', borderBottomLeftRadius: '0' }}>
             <span style={{ display: 'inline-block', animation: 'bounce 1s infinite' }}>...</span>
           </div>
         )}
@@ -92,7 +95,7 @@ export default function SmartAssistant() {
           type="text" 
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask a question about the election..." 
+          placeholder="Ask about Lok Sabha, EVMs, or phases..." 
           style={{ 
             flex: 1, 
             padding: '1rem', 
@@ -104,8 +107,8 @@ export default function SmartAssistant() {
             fontSize: '1rem'
           }}
         />
-        <button type="submit" className="btn btn-primary" disabled={isLoading}>
-          Send
+        <button type="submit" className="btn btn-primary">
+          Ask
         </button>
       </form>
     </div>
