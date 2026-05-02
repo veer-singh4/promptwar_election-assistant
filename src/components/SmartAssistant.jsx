@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export default function SmartAssistant() {
