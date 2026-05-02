@@ -20,7 +20,7 @@ const location = 'us-central1';
 const vertexAI = new VertexAI({ project: project, location: location });
 
 const generativeModel = vertexAI.getGenerativeModel({
-  model: 'gemini-1.5-flash',
+  model: 'gemini-2.0-flash',
   systemInstruction: {
     role: 'system',
     parts: [{ text: "You are the 'Bharat Election Smart Assistant'. Provide accurate, helpful, and non-partisan information about the Indian democratic process (Lok Sabha, Rajya Sabha, EVMs, VVPATs, polling phases, voter rights). Be respectful and encourage participation." }]
