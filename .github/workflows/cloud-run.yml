@@ -27,12 +27,16 @@ jobs:
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
 
-    - name: Deploy to Cloud Run
+    - name: Build and Deploy
       run: |-
+        gcloud builds submit \
+          --tag us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}:${{ github.sha }} \
+          --build-arg VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }} \
+          --project ${{ env.PROJECT_ID }}
+        
         gcloud run deploy ${{ env.SERVICE }} \
-          --source . \
+          --image us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cloud-run-source-deploy/${{ env.SERVICE }}:${{ github.sha }} \
           --region ${{ env.REGION }} \
           --platform managed \
           --allow-unauthenticated \
-          --set-env-vars VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }} \
-          --set-build-env-vars VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }}
+          --set-env-vars VITE_GEMINI_API_KEY=${{ secrets.VITE_GEMINI_API_KEY }}
