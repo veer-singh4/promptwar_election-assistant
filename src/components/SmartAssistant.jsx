@@ -52,64 +52,68 @@ export default function SmartAssistant() {
   };
 
   return (
-    <div className="card" style={{ maxWidth: '800px', margin: '0 auto', height: '600px', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <div style={{ fontSize: '2rem' }}>🤖</div>
+    <section className="card" aria-labelledby="assistant-title" style={{ maxWidth: '800px', margin: '0 auto', height: '600px', display: 'flex', flexDirection: 'column' }}>
+      <header style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div role="img" aria-label="Robot Icon" style={{ fontSize: '2rem' }}>🤖</div>
         <div>
-          <h2 style={{ margin: 0, color: 'var(--accent-saffron)' }}>Gemini Assistant</h2>
-          <small style={{ color: 'var(--accent-green)' }}>Powered by Google Gemini</small>
+          <h2 id="assistant-title" style={{ margin: 0, color: 'var(--accent-saffron)' }}>Gemini Assistant</h2>
+          <small style={{ color: 'var(--accent-green)' }}>Powered by Google Gemini 2.5 Flash</small>
         </div>
-      </div>
-      
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', paddingRight: '0.5rem' }}>
-        {messages.map((msg, idx) => (
-          <div 
-            key={idx} 
-            style={{ 
-              alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-              backgroundColor: msg.role === 'user' ? 'var(--bg-tertiary)' : 'var(--bg-secondary)',
-              color: 'var(--text-primary)',
-              padding: '1rem',
-              borderRadius: 'var(--radius-md)',
-              borderBottomRightRadius: msg.role === 'user' ? '0' : 'var(--radius-md)',
-              borderBottomLeftRadius: msg.role === 'assistant' ? '0' : 'var(--radius-md)',
-              border: `1px solid ${msg.role === 'user' ? 'var(--accent-green)' : 'var(--border-color)'}`,
-              maxWidth: '80%',
-              lineHeight: '1.5'
-            }}
-          >
-            {msg.content}
+      </header>
+
+      <div 
+        aria-live="polite"
+        style={{ flex: 1, overflowY: 'auto', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.5rem' }}
+      >
+        {messages.map((m, i) => (
+          <div key={i} style={{ 
+            alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+            maxWidth: '80%',
+            backgroundColor: m.role === 'user' ? 'var(--accent-saffron)' : 'var(--card-bg)',
+            color: m.role === 'user' ? 'white' : 'var(--text-color)',
+            padding: '0.75rem 1rem',
+            borderRadius: '1rem',
+            border: m.role === 'user' ? 'none' : '1px solid var(--border-color)',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            {m.content}
           </div>
         ))}
         {isLoading && (
-          <div style={{ alignSelf: 'flex-start', backgroundColor: 'var(--bg-secondary)', padding: '1rem', borderRadius: 'var(--radius-md)', borderBottomLeftRadius: '0' }}>
-            <span style={{ display: 'inline-block', animation: 'bounce 1s infinite' }}>...</span>
+          <div style={{ alignSelf: 'flex-start', color: 'var(--accent-green)', fontStyle: 'italic' }}>
+            Assistant is thinking...
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
-        <input 
-          type="text" 
+      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '0.5rem' }}>
+        <input
+          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask about Lok Sabha, EVMs, or phases..." 
+          placeholder="Ask anything about Indian elections..."
+          aria-label="Election question input"
           style={{ 
-            flex: 1, 
-            padding: '1rem', 
-            borderRadius: 'var(--radius-md)', 
+            flex: 1,
+            backgroundColor: 'var(--bg-color)',
             border: '1px solid var(--border-color)',
-            backgroundColor: 'var(--bg-primary)',
-            color: 'var(--text-primary)',
-            outline: 'none',
-            fontSize: '1rem'
+            color: 'var(--text-color)',
+            padding: '0.75rem',
+            borderRadius: '0.5rem',
+            outline: 'none'
           }}
         />
-        <button type="submit" className="btn btn-primary">
-          Ask
+        <button 
+          type="submit" 
+          className="btn-primary" 
+          disabled={isLoading}
+          aria-label="Send message"
+          style={{ width: 'auto', padding: '0.75rem 1.5rem' }}
+        >
+          {isLoading ? '...' : 'Send'}
         </button>
       </form>
-    </div>
+    </section>
   );
 }
