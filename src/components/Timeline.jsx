@@ -13,21 +13,48 @@ export default function Timeline() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'start' }}>
-      
-      {/* Interactive Stepper */}
-      <section className="card" style={{ padding: '2rem' }}>
-        <h2 style={{ color: 'var(--accent-saffron)', marginBottom: '0.5rem' }}>Election Roadmap</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>Click each stage to explore the democratic journey.</p>
-        
-        <div style={{ position: 'relative', paddingLeft: '1rem' }}>
+    <div
+      style={{
+        maxWidth: '1000px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+        gap: '3rem',
+        alignItems: 'start',
+      }}
+    >
+      {/* Interactive Stepper — tablist pattern */}
+      <section className="card" aria-labelledby="roadmap-title" style={{ padding: '2rem' }}>
+        <h2 id="roadmap-title" style={{ color: 'var(--accent-saffron)', marginBottom: '0.5rem' }}>
+          Election Roadmap
+        </h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>
+          Click each stage to explore the democratic journey.
+        </p>
+
+        <div role="tablist" aria-label="Election stages" style={{ position: 'relative', paddingLeft: '1rem' }}>
           {/* Connector Line */}
-          <div style={{ position: 'absolute', left: '26px', top: '20px', bottom: '20px', width: '2px', background: 'var(--border-color)', zIndex: 0 }} />
-          
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: '26px',
+              top: '20px',
+              bottom: '20px',
+              width: '2px',
+              background: 'var(--border-color)',
+              zIndex: 0,
+            }}
+          />
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative', zIndex: 1 }}>
             {events.map((evt, idx) => (
-              <button 
+              <button
                 key={evt.id}
+                role="tab"
+                aria-selected={activeIndex === idx}
+                aria-controls={`panel-${evt.id}`}
+                id={`tab-${evt.id}`}
                 onClick={() => setActiveIndex(idx)}
                 style={{
                   background: 'none',
@@ -39,46 +66,94 @@ export default function Timeline() {
                   cursor: 'pointer',
                   textAlign: 'left',
                   width: '100%',
-                  transition: 'var(--transition)'
+                  transition: 'var(--transition)',
                 }}
               >
-                <div style={{ 
-                  width: '32px', height: '32px', borderRadius: '50%', 
-                  backgroundColor: activeIndex === idx ? 'var(--accent-saffron)' : 'var(--bg-tertiary)',
-                  border: `2px solid ${activeIndex === idx ? 'var(--accent-saffron)' : 'var(--border-color)'}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'var(--transition)'
-                }}>
+                <div
+                  aria-hidden="true"
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    backgroundColor: activeIndex === idx ? 'var(--accent-saffron)' : 'var(--bg-tertiary)',
+                    border: `2px solid ${activeIndex === idx ? 'var(--accent-saffron)' : 'var(--border-color)'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'var(--transition)',
+                  }}
+                >
                   <evt.icon size={16} color={activeIndex === idx ? 'white' : 'var(--text-secondary)'} />
                 </div>
                 <div>
-                  <h4 style={{ color: activeIndex === idx ? 'var(--accent-saffron)' : 'var(--text-primary)', margin: 0, transition: 'var(--transition)' }}>{evt.title}</h4>
+                  <h4
+                    style={{
+                      color: activeIndex === idx ? 'var(--accent-saffron)' : 'var(--text-primary)',
+                      margin: 0,
+                      transition: 'var(--transition)',
+                    }}
+                  >
+                    {evt.title}
+                  </h4>
                   <small style={{ color: 'var(--text-secondary)' }}>{evt.date}</small>
                 </div>
-                {activeIndex === idx && <ChevronRight size={18} color="var(--accent-saffron)" style={{ marginLeft: 'auto' }} />}
+                {activeIndex === idx && (
+                  <ChevronRight size={18} color="var(--accent-saffron)" aria-hidden="true" style={{ marginLeft: 'auto' }} />
+                )}
               </button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Detail View */}
-      <section className="card animate-fade-in" style={{ 
-        position: 'sticky', top: '100px',
-        padding: '3rem', 
-        backgroundColor: 'rgba(251,140,0,0.03)', 
-        border: '1px solid var(--accent-saffron)',
-        display: 'flex', flexDirection: 'column', gap: '1.5rem'
-      }}>
-        <div style={{ width: '64px', height: '64px', borderRadius: '1rem', background: 'var(--accent-saffron)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(255,153,51,0.2)' }}>
+      {/* Detail View — tabpanel pattern */}
+      <section
+        role="tabpanel"
+        id={`panel-${events[activeIndex].id}`}
+        aria-labelledby={`tab-${events[activeIndex].id}`}
+        className="card animate-fade-in"
+        style={{
+          position: 'sticky',
+          top: '100px',
+          padding: '3rem',
+          backgroundColor: 'rgba(251,140,0,0.03)',
+          border: '1px solid var(--accent-saffron)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem',
+        }}
+      >
+        <div
+          style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '1rem',
+            background: 'var(--accent-saffron)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 8px 16px rgba(255,153,51,0.2)',
+          }}
+          aria-hidden="true"
+        >
           {(() => {
             const ActiveIcon = events[activeIndex].icon;
             return <ActiveIcon size={32} color="white" />;
           })()}
         </div>
-        
+
         <div>
-          <span style={{ color: 'var(--accent-saffron)', fontWeight: 600, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Stage {events[activeIndex].id} • {events[activeIndex].date}</span>
+          <span
+            style={{
+              color: 'var(--accent-saffron)',
+              fontWeight: 600,
+              fontSize: '0.8rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+            }}
+          >
+            Stage {events[activeIndex].id} • {events[activeIndex].date}
+          </span>
           <h3 style={{ fontSize: '1.75rem', marginTop: '0.5rem' }}>{events[activeIndex].title}</h3>
         </div>
 
@@ -86,18 +161,23 @@ export default function Timeline() {
           {events[activeIndex].desc}
         </p>
 
-        <div style={{ 
-          marginTop: 'auto', padding: '1rem', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)',
-          display: 'flex', gap: '1rem', alignItems: 'center'
-        }}>
-          <Info size={20} color="var(--accent-saffron)" />
+        <div
+          style={{
+            marginTop: 'auto',
+            padding: '1rem',
+            background: 'var(--bg-tertiary)',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            gap: '1rem',
+            alignItems: 'center',
+          }}
+        >
+          <Info size={20} color="var(--accent-saffron)" aria-hidden="true" />
           <p style={{ fontSize: '0.85rem', margin: 0 }}>
             Official dates and protocols are strictly governed by the ECI Constitution.
           </p>
         </div>
       </section>
-
     </div>
   );
 }
-

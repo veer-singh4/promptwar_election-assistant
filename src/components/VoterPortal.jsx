@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 
@@ -42,25 +42,33 @@ export default function VoterPortal() {
           </p>
           
           <form onSubmit={handleUpload} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
-            <div 
-              role="presentation"
-              style={{ 
-                border: '2px dashed var(--border-color)', 
-                padding: '3rem', 
+            <label
+              htmlFor="voter-id-upload"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.75rem',
+                border: '2px dashed var(--border-color)',
+                padding: '3rem',
                 borderRadius: 'var(--radius-md)',
                 width: '100%',
                 maxWidth: '500px',
-                backgroundColor: 'var(--bg-primary)'
+                backgroundColor: 'var(--bg-primary)',
+                cursor: 'pointer',
               }}
             >
-              <input 
-                type="file" 
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Click or drag to upload your Voter ID</span>
+              <input
+                id="voter-id-upload"
+                type="file"
                 accept="image/*"
                 onChange={(e) => setFile(e.target.files[0])}
                 aria-label="Upload Voter ID Image"
                 style={{ color: 'var(--text-primary)' }}
               />
-            </div>
+            </label>
             <button 
               type="submit" 
               className="btn btn-primary" 
